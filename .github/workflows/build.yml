@@ -23,8 +23,10 @@ jobs:
       run: npm install -g cordova
     - name: Create Cordova Project
       run: |
-        cordova create app com.yourname.spacedefender SpaceDefender
+        cordova create app com.space.defender.classic "Space Defender"
         rm -rf app/www && mv www app/www && cp config.xml app/
+        # Automatically creates a blank icon if the file is missing to prevent errors
+        touch app/icon.png
     - name: Build Android Bundle (AAB)
       run: |
         cd app
@@ -35,3 +37,4 @@ jobs:
       with:
         name: SpaceDefender-Bundle
         path: app/platforms/android/app/build/outputs/bundle/release/*.aab
+
