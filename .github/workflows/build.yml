@@ -1,0 +1,37 @@
+name: Build Android AAB
+on: [push, workflow_dispatch]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+    - name: Unzip Project
+      run: unzip game.zip -d www && cp www/config.xml .
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+    - name: Install Cordova
+      run: npm install -g cordova
+    - name: Create Cordova Project
+      run: |
+        cordova create app com.yourname.spacedefender SpaceDefender
+        rm -rf app/www && mv www app/www && cp config.xml app/
+    - name: Build Android Bundle (AAB)
+      run: |
+        cd app
+        cordova platform add android
+        cordova build android --release -- --packageType=bundle
+    - name: Upload Output AAB Bundle
+      uses: actions/upload-artifact@v4
+      with:
+        name: SpaceDefender-Bundle
+        path: app/platforms/android/app/build/outputs/bundle/release/*.aab
