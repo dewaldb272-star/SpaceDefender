@@ -1,4 +1,4 @@
-name: Build Android AAB
+ name: Build Android AAB
 on: [push, workflow_dispatch]
 jobs:
   build:
@@ -7,34 +7,36 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
     - name: Unzip Project
-      run: unzip game.zip -d www && cp www/config.xml .
+      run: |
+        unzip game.zip -d www
+        cp www/config.xml .
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: 20
-    - name: Set up JDK 17
+        node-version: 18
+    - name: Set up JDK 11
       uses: actions/setup-java@v4
       with:
-        java-version: '17'
+        java-version: '11'
         distribution: 'temurin'
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
     - name: Install Cordova
-      run: npm install -g cordova
+      run: npm install -g cordova@11.1.0
     - name: Create Cordova Project
       run: |
         cordova create app com.space.defender.classic "Space Defender"
         rm -rf app/www && mv www app/www && cp config.xml app/
-        # Automatically creates a blank icon if the file is missing to prevent errors
         touch app/icon.png
     - name: Build Android Bundle (AAB)
       run: |
         cd app
-        cordova platform add android
+        cordova platform add android@10.1.2
         cordova build android --release -- --packageType=bundle
     - name: Upload Output AAB Bundle
       uses: actions/upload-artifact@v4
       with:
         name: SpaceDefender-Bundle
         path: app/platforms/android/app/build/outputs/bundle/release/*.aab
+
 
